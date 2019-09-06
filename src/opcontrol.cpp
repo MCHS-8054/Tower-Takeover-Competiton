@@ -3,6 +3,10 @@
 
 bool torque = false;
 
+bool intakePressed = false;
+bool outtakePressed = false;
+
+using namespace pros;
 /**
  * Runs the operator control code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -17,34 +21,43 @@ bool torque = false;
  * task, not resume it from where it left off.
  */
 
+ double ticksToDeg(double ticks) {
+   return (ticks/900)*360;
+ }
+
+ double degToTicks(double deg) {
+   return (deg/360)*900;
+ }
+
  void in_n_out() {
- 	while(master.get_digital(DIGITAL_L1)) {
- 		if(!master.get_digital(DIGITAL_L1)) {
+	if(master.get_digital_new_press(DIGITAL_L1)) {
+    if(!intakePressed) {
  			intakeR.move_velocity(-100);
  			intakeL.move_velocity(100);
- 			break;
- 		}
+    } else {
+      intakeR.move_velocity(0);
+      intakeL.move_velocity(0);
+    }
+    intakePressed = !intakePressed;
  	}
- 	while(master.get_digital(DIGITAL_L2)) {
- 		if(!master.get_digital(DIGITAL_L2)) {
- 			intakeR.move_velocity(25);
- 			intakeL.move_velocity(-25);
- 			break;
- 		}
+ 	else if(master.get_digital_new_press(DIGITAL_L2)) {
+    if(!outtakePressed) {
+    	intakeR.move_velocity(100);
+ 			intakeL.move_velocity(-100);
+    } else {
+      intakeR.move_velocity(0);
+      intakeL.move_velocity(0);
+    }
+    outtakePressed = !outtakePressed;
  	}
 }
 
 void tilt() { //TODO check absolute positions
-  while(master.get_digital(DIGITAL_UP)) {
-    if(!master.get_digital(DIGITAL_UP)) {
-      flippy.move_absolute(90, 25); //vertical
-      break;
-    }
+  if(master.get_digital(DIGITAL_UP)) {
+    flippy.move_absolute(degToTicks(90), 100); //vertical
   }
-  while(master.get_digital(DIGITAL_DOWN)) {
-    if(!master.get_digital(DIGITAL_DOWN)) {
-      flippy.move_absolute(135, 25); //tilted back
-    }
+  if(master.get_digital(DIGITAL_DOWN)) {
+    flippy.move_absolute(degToTicks(135), 100); //tilted back
   }
 }
 
@@ -52,11 +65,11 @@ void moveArm() { //TODO check absolute positions
   arm.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
   if(master.get_digital(DIGITAL_B)) { //stow position
-    arm.move_absolute(-45, 25);
+    arm.move_absolute(degToTicks(0), 100);
   } else if (master.get_digital(DIGITAL_A)) {
-    arm.move_absolute(30, 25);
+    arm.move_absolute(degToTicks(60), 100);
   } else if (master.get_digital(DIGITAL_X)) {
-    arm.move_absolute(60, 25);
+    arm.move_absolute(degToTicks(90), 100);
   }
 }
 
@@ -72,23 +85,30 @@ void checkCurrent(int cur){
 }
 
 void drive(){
-  while (true) {
-		gL.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-		gR.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	gL.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+	gR.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
-		if(torque){
-			sL.move(master.get_analog(ANALOG_LEFT_Y));
-			sR.move(master.get_analog(ANALOG_RIGHT_Y));
-		} else {
-			gL.move(-master.get_analog(ANALOG_LEFT_Y));
-			sL.move(-master.get_analog(ANALOG_LEFT_Y));
+	if(torque){
+		sL.move(master.get_analog(ANALOG_LEFT_Y));
+		sR.move(master.get_analog(ANALOG_RIGHT_Y));
+	} else {
+		gL.move(-master.get_analog(ANALOG_LEFT_Y));
+		sL.move(-master.get_analog(ANALOG_LEFT_Y));
 
-			gR.move(master.get_analog(ANALOG_RIGHT_Y));
-			sR.move(master.get_analog(ANALOG_RIGHT_Y));
-		}
-  }
+		gR.move(master.get_analog(ANALOG_RIGHT_Y));
+		sR.move(master.get_analog(ANALOG_RIGHT_Y));
+	}
 }
 
 void opcontrol() {
-	moveArm();
+  //pros::lcd::initialize();
+  while(true) {
+    moveArm();
+    tilt();
+    in_n_out();
+    drive();
+    delay(20);
+    pros::lcd::set_text(2, std::to_string(flippy.get_position()));
+    pros::lcd::set_text(3, std::to_string(arm.get_position()));
+  }
 }

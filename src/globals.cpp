@@ -2,6 +2,8 @@
 
 using namespace pros;
 
+
+
 Controller master(CONTROLLER_MASTER);
 
 // auto driveR = master.get_analog(ANALOG_RIGHT_Y);
@@ -20,5 +22,8 @@ Motor sL(12);
 Motor intakeR(3);
 Motor intakeL(13);
 
-Motor flippy(14);
 Motor arm(4);
+Motor flippy(14);
+
+bool tiltUp = master.get_digital_new_press(DIGITAL_UP);
+bool tiltDown = master.get_digital_new_press(DIGITAL_DOWN);

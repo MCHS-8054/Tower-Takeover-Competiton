@@ -1,11 +1,11 @@
 {
     "py/object": "pros.conductor.project.Project",
     "py/state": {
-        "project_name": "OkapiLib-v4",
+        "project_name": "Tower-Takeover-Competition",
         "target": "v5",
         "templates": {
             "kernel": {
-                "location": "C:\\Users\\alexr\\AppData\\Roaming\\PROS\\templates\\kernel@3.1.6",
+                "location": "C:\\Users\\Audrey Lee\\AppData\\Roaming\\PROS\\templates\\kernel@3.1.6",
                 "metadata": {
                     "cold_addr": "58720256",
                     "cold_output": "bin/cold.package.bin",

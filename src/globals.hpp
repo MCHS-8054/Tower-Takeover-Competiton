@@ -23,4 +23,5 @@ extern Motor intakeL;
 extern Motor flippy;
 extern Motor arm;
 
-extern void in_n_out();
+extern bool tiltUp;
+extern bool tiltDown;
