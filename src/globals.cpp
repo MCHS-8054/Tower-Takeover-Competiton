@@ -22,8 +22,8 @@ Motor sL(12);
 Motor intakeR(3);
 Motor intakeL(13);
 
-Motor arm(4);
-Motor flippy(14);
+Motor flippyR(4);
+Motor flippyL(14);
 
 bool tiltUp = master.get_digital_new_press(DIGITAL_UP);
 bool tiltDown = master.get_digital_new_press(DIGITAL_DOWN);

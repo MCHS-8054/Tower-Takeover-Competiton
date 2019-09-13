@@ -54,13 +54,16 @@ using namespace pros;
 
 void tilt() { //TODO check absolute positions
   if(master.get_digital(DIGITAL_UP)) {
-    flippy.move_absolute(degToTicks(90), 100); //vertical
+    flippyR.move_absolute(degToTicks(90), 100); //vertical
+    flippyL.move_absolute(degToTicks(90), 100); //vertical
   }
   if(master.get_digital(DIGITAL_DOWN)) {
-    flippy.move_absolute(degToTicks(135), 100); //tilted back
+    flippyR.move_absolute(degToTicks(135), 100); //tilted back
+    flippyL.move_absolute(degToTicks(135), 100); //tilted back
   }
 }
 
+/*
 void moveArm() { //TODO check absolute positions
   arm.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
@@ -71,16 +74,16 @@ void moveArm() { //TODO check absolute positions
   } else if (master.get_digital(DIGITAL_X)) {
     arm.move_absolute(degToTicks(90), 100);
   }
-}
+}*/
 
 void checkCurrent(int cur){
 	if(master.get_digital_new_press(DIGITAL_R1)){
 		torque = true;
-		pros::lcd::print(4, "torque");
+		pros::lcd::print(1, "Drive mode: torque");
 	}
 	if(master.get_digital_new_press(DIGITAL_R2)){
 		torque = false;
-		pros::lcd::print(4, "speed");
+		pros::lcd::print(1, "Drive mode: speed");
 	}
 }
 
@@ -103,12 +106,12 @@ void drive(){
 void opcontrol() {
   //pros::lcd::initialize();
   while(true) {
-    moveArm();
+    //moveArm();
     tilt();
     in_n_out();
     drive();
     delay(20);
-    pros::lcd::set_text(2, std::to_string(flippy.get_position()));
-    pros::lcd::set_text(3, std::to_string(arm.get_position()));
+    pros::lcd::print(2, "Tilter angle: %f", flippyR.get_position());
+    pros::lcd::print(3, "Intake status: %f", (intakeR.get_actual_velocity() > 0) - (intakeR.get_actual_velocity() < 0));
   }
 }

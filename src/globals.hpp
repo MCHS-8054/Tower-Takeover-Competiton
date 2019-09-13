@@ -20,8 +20,8 @@ extern Motor sL;
 extern Motor intakeR;
 extern Motor intakeL;
 
-extern Motor flippy;
-extern Motor arm;
+extern Motor flippyR;
+extern Motor flippyL;
 
 extern bool tiltUp;
 extern bool tiltDown;
