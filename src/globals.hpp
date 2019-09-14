@@ -25,3 +25,6 @@ extern Motor flippyL;
 
 extern bool tiltUp;
 extern bool tiltDown;
+
+
+extern float vertAngle;

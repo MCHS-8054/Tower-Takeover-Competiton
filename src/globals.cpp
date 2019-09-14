@@ -22,8 +22,10 @@ Motor sL(12);
 Motor intakeR(3);
 Motor intakeL(13);
 
-Motor flippyR(4);
-Motor flippyL(14);
+Motor flippyR(4, E_MOTOR_GEARSET_36, true, E_MOTOR_ENCODER_DEGREES);
+Motor flippyL(14, E_MOTOR_GEARSET_36, false, E_MOTOR_ENCODER_DEGREES);
 
 bool tiltUp = master.get_digital_new_press(DIGITAL_UP);
 bool tiltDown = master.get_digital_new_press(DIGITAL_DOWN);
+
+float vertAngle = 615;

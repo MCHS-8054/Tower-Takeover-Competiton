@@ -55,26 +55,29 @@ using namespace pros;
 
 void tilt() { //TODO check absolute positions
   if(master.get_digital(DIGITAL_UP)) {
-    flippyR.move_absolute(degToTicks(600), 50); //vertical
-    flippyL.move_absolute(degToTicks(-600), 50); //vertical
+    while(flippyL.get_position()<(vertAngle-5)){
+    flippyR.move_absolute(vertAngle, 50); //vertical
+    flippyL.move_absolute(vertAngle, 50); //vertical
+  }
+    intakeR.move_velocity(50);
+    intakeL.move_velocity(-50);
   }
   if(master.get_digital(DIGITAL_DOWN)) {
-    flippyR.move_absolute(degToTicks(0), 50); //tilted back
-    flippyL.move_absolute(degToTicks(0), 50); //tilted back
+    flippyR.move_absolute(0, 50); //tilted back
+    flippyL.move_absolute(0, 50); //tilted back
+    intakeR.move_velocity(0);
+    intakeL.move_velocity(0);
   }
 }
 
 void outtakeSequence() {
   if(master.get_digital_new_press(DIGITAL_R2)) {
     if(!seqOut) {
-      flippyR.move_absolute(degToTicks(600),50);
-      flippyL.move_absolute(degToTicks(-600),50);
+      flippyR.move_absolute(vertAngle,50);
+      flippyL.move_absolute(vertAngle,50);
     } else {
-      intakeR.move_velocity(50);
-      intakeL.move_velocity(-50);
-      delay(20);
-      flippyR.move_absolute(degToTicks(0),50);
-      flippyL.move_absolute(degToTicks(0),50);
+      intakeR.move_velocity(100);
+      intakeL.move_velocity(-100);
     }
     seqOut = !seqOut;
   }
@@ -128,7 +131,7 @@ void opcontrol() {
     in_n_out();
     drive();
     //outtakeSequence();
-    pros::lcd::print(2, "Tilter angle: %f", flippyR.get_position());
+    pros::lcd::print(2, "Tilter angle: %f", flippyR.get_position()/7);
     delay(20);
     //pros::lcd::print(3, "Intake status: %f", (intakeR.get_actual_velocity() > 0) - (intakeR.get_actual_velocity() < 0));
   }
