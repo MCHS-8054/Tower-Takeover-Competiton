@@ -5,6 +5,7 @@ bool torque = false;
 
 bool intakePressed = false;
 bool outtakePressed = false;
+bool seqOut = false;
 
 using namespace pros;
 /**
@@ -22,11 +23,11 @@ using namespace pros;
  */
 
  double ticksToDeg(double ticks) {
-   return (ticks/900)*360;
+   return (ticks/1800)*360;
  }
 
  double degToTicks(double deg) {
-   return (deg/360)*900;
+   return (deg/360)*1800;
  }
 
  void in_n_out() {
@@ -42,8 +43,8 @@ using namespace pros;
  	}
  	else if(master.get_digital_new_press(DIGITAL_L2)) {
     if(!outtakePressed) {
-    	intakeR.move_velocity(100);
- 			intakeL.move_velocity(-100);
+    	intakeR.move_velocity(50);
+ 			intakeL.move_velocity(-50);
     } else {
       intakeR.move_velocity(0);
       intakeL.move_velocity(0);
@@ -54,12 +55,28 @@ using namespace pros;
 
 void tilt() { //TODO check absolute positions
   if(master.get_digital(DIGITAL_UP)) {
-    flippyR.move_absolute(degToTicks(90), 100); //vertical
-    flippyL.move_absolute(degToTicks(90), 100); //vertical
+    flippyR.move_absolute(degToTicks(600), 50); //vertical
+    flippyL.move_absolute(degToTicks(-600), 50); //vertical
   }
   if(master.get_digital(DIGITAL_DOWN)) {
-    flippyR.move_absolute(degToTicks(135), 100); //tilted back
-    flippyL.move_absolute(degToTicks(135), 100); //tilted back
+    flippyR.move_absolute(degToTicks(0), 50); //tilted back
+    flippyL.move_absolute(degToTicks(0), 50); //tilted back
+  }
+}
+
+void outtakeSequence() {
+  if(master.get_digital_new_press(DIGITAL_R2)) {
+    if(!seqOut) {
+      flippyR.move_absolute(degToTicks(600),50);
+      flippyL.move_absolute(degToTicks(-600),50);
+    } else {
+      intakeR.move_velocity(50);
+      intakeL.move_velocity(-50);
+      delay(20);
+      flippyR.move_absolute(degToTicks(0),50);
+      flippyL.move_absolute(degToTicks(0),50);
+    }
+    seqOut = !seqOut;
   }
 }
 
@@ -110,8 +127,9 @@ void opcontrol() {
     tilt();
     in_n_out();
     drive();
-    delay(20);
+    //outtakeSequence();
     pros::lcd::print(2, "Tilter angle: %f", flippyR.get_position());
-    pros::lcd::print(3, "Intake status: %f", (intakeR.get_actual_velocity() > 0) - (intakeR.get_actual_velocity() < 0));
+    delay(20);
+    //pros::lcd::print(3, "Intake status: %f", (intakeR.get_actual_velocity() > 0) - (intakeR.get_actual_velocity() < 0));
   }
 }
