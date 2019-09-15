@@ -12,10 +12,10 @@ extern Controller master;
 // extern auto tiltUp;
 // extern auto tiltBack;
 
-extern Motor gR;
-extern Motor sR;
-extern Motor gL;
-extern Motor sL;
+extern Motor gearR;
+extern Motor sprockR;
+extern Motor gearL;
+extern Motor sprockL;
 
 extern Motor intakeR;
 extern Motor intakeL;
@@ -28,3 +28,5 @@ extern bool tiltDown;
 
 
 extern float vertAngle;
+
+enum Motorgroup {DRIVE, TILTER, INTAKE};

@@ -22,6 +22,49 @@ using namespace pros;
  * task, not resume it from where it left off.
  */
 
+void stopMotors(Motorgroup group) {
+  switch(group) {
+    case DRIVE:
+      sprockL.move(0);
+      sprockR.move(0);
+      gearL.move(0);
+      gearR.move(0);
+      break;
+    case TILTER:
+      flippyL.move(0);
+      flippyR.move(0);
+    case INTAKE:
+      intakeL.move(0);
+      intakeR.move(0);
+  }
+}
+
+void drive(bool slow = false){
+ 	gearL.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+ 	gearR.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+
+   if(slow) {
+     sprockL.move(-30);
+     sprockR.move(-30);
+     gearL.move(-30);
+     gearR.move(-30);
+     delay(2000);
+     stopMotors(DRIVE);
+   }
+   else {
+   	if(torque) {
+   		sprockL.move(master.get_analog(ANALOG_LEFT_Y));
+   		sprockR.move(master.get_analog(ANALOG_RIGHT_Y));
+   	} else {
+   		gearL.move(-master.get_analog(ANALOG_LEFT_Y));
+   		sprockL.move(-master.get_analog(ANALOG_LEFT_Y));
+
+   		gearR.move(master.get_analog(ANALOG_RIGHT_Y));
+   		sprockR.move(master.get_analog(ANALOG_RIGHT_Y));
+   	}
+   }
+ }
+
  double ticksToDeg(double ticks) {
    return (ticks/1800)*360;
  }
@@ -31,23 +74,23 @@ using namespace pros;
  }
 
  void in_n_out() {
-	if(master.get_digital_new_press(DIGITAL_L1)) {
+	if(master.get_digital_new_press(DIGITAL_R1)) {
+    outtakePressed = false;
     if(!intakePressed) {
  			intakeR.move_velocity(-100);
  			intakeL.move_velocity(100);
     } else {
-      intakeR.move_velocity(0);
-      intakeL.move_velocity(0);
+      stopMotors(INTAKE);
     }
     intakePressed = !intakePressed;
  	}
- 	else if(master.get_digital_new_press(DIGITAL_L2)) {
+ 	else if(master.get_digital_new_press(DIGITAL_R2)) {
+    intakePressed = false;
     if(!outtakePressed) {
     	intakeR.move_velocity(50);
  			intakeL.move_velocity(-50);
     } else {
-      intakeR.move_velocity(0);
-      intakeL.move_velocity(0);
+      stopMotors(INTAKE);
     }
     outtakePressed = !outtakePressed;
  	}
@@ -56,30 +99,31 @@ using namespace pros;
 void tilt() { //TODO check absolute positions
   if(master.get_digital(DIGITAL_UP)) {
     while(flippyL.get_position()<(vertAngle-5)){
-    flippyR.move_absolute(vertAngle, 50); //vertical
-    flippyL.move_absolute(vertAngle, 50); //vertical
-  }
+      flippyR.move_absolute(vertAngle, 50); //vertical
+      flippyL.move_absolute(vertAngle, 50); //vertical
+    }
     intakeR.move_velocity(50);
     intakeL.move_velocity(-50);
   }
   if(master.get_digital(DIGITAL_DOWN)) {
     flippyR.move_absolute(0, 50); //tilted back
     flippyL.move_absolute(0, 50); //tilted back
-    intakeR.move_velocity(0);
-    intakeL.move_velocity(0);
+    stopMotors(INTAKE);
   }
 }
 
 void outtakeSequence() {
-  if(master.get_digital_new_press(DIGITAL_R2)) {
-    if(!seqOut) {
-      flippyR.move_absolute(vertAngle,50);
-      flippyL.move_absolute(vertAngle,50);
-    } else {
-      intakeR.move_velocity(100);
-      intakeL.move_velocity(-100);
+  if(master.get_digital_new_press(DIGITAL_RIGHT)) {
+    while(flippyL.get_position()<(vertAngle-5)) {
+      flippyR.move_absolute(vertAngle, 50); //vertical
+      flippyL.move_absolute(vertAngle, 50); //vertical
     }
-    seqOut = !seqOut;
+    intakeR.move_velocity(50);
+    intakeL.move_velocity(-50);
+    delay(250);
+    drive(true);
+    flippyR.move_absolute(vertAngle-30, 50);
+    flippyL.move_absolute(vertAngle-30, 50);
   }
 }
 
@@ -97,29 +141,13 @@ void moveArm() { //TODO check absolute positions
 }*/
 
 void checkCurrent(int cur){
-	if(master.get_digital_new_press(DIGITAL_R1)){
+	if(master.get_digital_new_press(DIGITAL_L1)){
 		torque = true;
 		pros::lcd::print(1, "Drive mode: torque");
 	}
-	if(master.get_digital_new_press(DIGITAL_R2)){
+	if(master.get_digital_new_press(DIGITAL_L2)){
 		torque = false;
 		pros::lcd::print(1, "Drive mode: speed");
-	}
-}
-
-void drive(){
-	gL.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-	gR.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-
-	if(torque){
-		sL.move(master.get_analog(ANALOG_LEFT_Y));
-		sR.move(master.get_analog(ANALOG_RIGHT_Y));
-	} else {
-		gL.move(-master.get_analog(ANALOG_LEFT_Y));
-		sL.move(-master.get_analog(ANALOG_LEFT_Y));
-
-		gR.move(master.get_analog(ANALOG_RIGHT_Y));
-		sR.move(master.get_analog(ANALOG_RIGHT_Y));
 	}
 }
 
